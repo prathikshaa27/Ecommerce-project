@@ -16,8 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import RedirectView
+
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='api/signup')),
     path("admin/", admin.site.urls),
+    path('', include('users.urls')),
+    path('', include('products.urls')),
+    path('api-auth/', include('rest_framework.urls')),
 ]

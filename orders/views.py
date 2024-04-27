@@ -7,17 +7,17 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from orders.models import Order
 from orders.serializers import OrderSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([AllowAny])
 def seller_orders(request):
     orders = Order.objects.all()
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def buyer_orders(request):
     user = request.user
     orders = Order.objects.filter(buyer = user)

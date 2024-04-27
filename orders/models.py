@@ -4,7 +4,7 @@ from products.models import Product
 
 # Create your models here.
 class Order(models.Model):
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField(blank=False, null=False)
-    order_status = models.CharField(max_length=50)
+  user = models.ForeignKey(User, on_delete=models.CASCADE)
+  product_name = models.ForeignKey(Product, on_delete=models.CASCADE)
+  quantity = models.IntegerField(blank=False, null=False)
+  order_status = models.CharField(max_length=50)

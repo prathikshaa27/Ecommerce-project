@@ -3,10 +3,12 @@ from .models import Product, ProductCategory
 
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        models = ProductCategory
-        fields = ['id', 'name']
+        model = ProductCategory
+        fields = ['name']
 
 class ProductSerializer(serializers.ModelSerializer):
+    name = ProductCategorySerializer()  
+
     class Meta:
         model = Product
-        fields = ['id','user','product_name','image_url','amount','quantity','description','name']
+        fields = ['id', 'user', 'product_name', 'image_url', 'amount', 'quantity', 'description', 'name']

@@ -1,39 +1,29 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import Profile
+from .models import CustomUser, Profile
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['user','mobile', 'address', 'pincode']
-class SellerSignupSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password', 'profile']
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        profile_data = validated_data.pop('profile')
-        user = User.objects.create_user(username=validated_data['username'], email=validated_data['email'], password=validated_data['password'])
-        Profile.objects.create(user=user, **profile_data)
-        return user
+        fields = ['mobile', 'address', 'pincode']
 
 class BuyerSignupSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer()
+    password = serializers.CharField(write_only=True)
+    profile = ProfileSerializer()  
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['username', 'email', 'password', 'profile']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-        profile_data = validated_data.pop('profile')
-        user = User.objects.create_user(username=validated_data['username'], email=validated_data['email'], password=validated_data['password'])
+        profile_data = validated_data.pop('profile', {})
+        password = validated_data.pop('password')
+        user = CustomUser.objects.create_user(**validated_data)
+        user.set_password(password)
+        user.save()
         Profile.objects.create(user=user, **profile_data)
         return user
 
-class SigninSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+class BuyerSigninSerializer(serializers.Serializer):
+    username = serializers.CharField()
     password = serializers.CharField()

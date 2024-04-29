@@ -1,9 +1,9 @@
 from django.urls import path
-from users import views
+from .views import buyer_signup, buyer_signin
 
 urlpatterns = [
-    path('api/seller/signup/', views.seller_signup, name='seller_signup'),
-    path('api/buyer/signup/', views.buyer_signup, name='buyer_signup'),
-    path('api/seller/signin', views.seller_signin, name='seller_signin'),
-    path('api/buyer/signin', views.buyer_signin, name='buyer_signin')
+    #path('api/seller/signup/', seller_signup),
+    #path('api/seller/signin/', seller_signin),
+    path('api/customer/signup/', buyer_signup),
+    path('api/customer/signin/', buyer_signin),
 ]

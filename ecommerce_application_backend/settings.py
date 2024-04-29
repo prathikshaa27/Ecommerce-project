@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework'
 ]
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -79,11 +80,11 @@ WSGI_APPLICATION = "ecommerce_application_backend.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'E_Commerce',
+        'NAME': 'ecommerce_application',
         'USER': 'root',
         'PASSWORD': 'prathi27',
         'HOST': 'localhost',   
-        'PORT': '3306',        
+        'PORT': '',        
     }
 }
 
@@ -109,10 +110,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     
     ],
-
+    'DEFAULT_PERMISSION_CLASSES':[
+        "rest_framework.permissions.IsAuthenticated",
+    ]
 }
 
 
@@ -138,3 +142,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'users.CustomUser'

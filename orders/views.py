@@ -1,43 +1,53 @@
-from django.shortcuts import render
+# from rest_framework.decorators import api_view, permission_classes
+# from rest_framework.response import Response
+# from rest_framework import status
+# from .models import Order
+# from .serializers import OrderSerializer
+# from rest_framework.permissions import AllowAny, IsAdminUser
+# from products.models import Product
 
-# Create your views here.
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth.models import User
-from orders.models import Order
-from orders.serializers import OrderSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
+# # Seller views
+# @api_view(['GET'])
+# @permission_classes([IsAdminUser])  
+# def seller_orders(request):
+#     seller_products = Product.objects.filter(user=request.user)
+#     orders = Order.objects.filter(product_name__in=seller_products)
+#     serializer = OrderSerializer(orders, many=True)
+#     return Response(serializer.data)
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def seller_orders(request):
-    orders = Order.objects.all()
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+# @api_view(['PUT'])
+# @permission_classes([IsAdminUser])
+# def update_order_status(request, order_id):
+#     try:
+#         print("Order ID:", order_id)
+#         print("User:", request.user)
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def buyer_orders(request):
-    user = request.user
-    orders = Order.objects.filter(buyer = user)
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+#         order = Order.objects.get(pk=order_id, product_name__user=request.user)
+#         print("Found Order:", order)
 
-@api_view(['PUT'])
-@permission_classes([IsAdminUser])
-def update_order_status(request, order_id):
-    try:
-        order = Order.objects.get(pk =order_id)
-    except Order.DoesNotExist:
-        return Response({'order':'Order does not exist'}, status = status.HTTP_404_NOT_FOUND)
-    if request.method == 'PUT':
-        order_status = request.data.get('order_status')
-        if order_status:
-            order.order_status=order_status
-            order.save()
-            return Response({'message':'Order status updated successfully'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'order:Order status required'},status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+#         if 'order_status' in request.data:
+#             order.order_status = request.data['order_status']
+#             order.save()
+#             return Response({'message': 'Order status updated successfully'})
+#         else:
+#             return Response({'error': 'Please provide the updated order status'}, status=status.HTTP_400_BAD_REQUEST)
+
+#     except Order.DoesNotExist:
+#         print("Order not found")
+#         return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# # Buyer views
+# @api_view(['GET'])
+# @permission_classes([AllowAny])  
+# def buyer_cart(request):
+#     buyer_cart = request.session.get('cart', {})
+#     product_ids = buyer_cart.keys()
+#     buyer_products = Product.objects.filter(id__in=product_ids)
+#     serializer = ProductSerializer(buyer_products, many=True)
+#     return Response(serializer.data)
+
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def place_order(request):
+#     request.session['cart'] = {}
+#     return Response({'message': 'Order placed successfully'})

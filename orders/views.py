@@ -1,10 +1,38 @@
-# from rest_framework.decorators import api_view, permission_classes
-# from rest_framework.response import Response
-# from rest_framework import status
-# from .models import Order
-# from .serializers import OrderSerializer
-# from rest_framework.permissions import AllowAny, IsAdminUser
-# from products.models import Product
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Order
+from .serializers import OrderSerializer
+from rest_framework import status
+from products.models import Product
+from products.serializers import ProductSerializer
+from django.shortcuts import get_object_or_404
+
+@api_view(['GET'])
+def view_cart(request):
+ if request.method == 'GET':
+  cart=request.session.get('cart', {})
+  product_ids = [int(product_id) for product_id in cart.keys()]
+  products = Product.objects.filter(pk__in=product_ids)
+  serializer = ProductSerializer(products, many=True)
+ return Response(serializer.data)
+
+@api_view(['POST'])
+def place_order(request):
+    if request.method == 'POST':
+        data = request.data
+        if isinstance(data, list):
+            serializer = OrderSerializer(data=data, many=True)
+        else:
+            serializer = OrderSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            request.session.pop('cart', None)  
+            return Response({'message': 'Order placed successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 # # Seller views
 # @api_view(['GET'])
@@ -35,19 +63,3 @@
 #     except Order.DoesNotExist:
 #         print("Order not found")
 #         return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
-
-# # Buyer views
-# @api_view(['GET'])
-# @permission_classes([AllowAny])  
-# def buyer_cart(request):
-#     buyer_cart = request.session.get('cart', {})
-#     product_ids = buyer_cart.keys()
-#     buyer_products = Product.objects.filter(id__in=product_ids)
-#     serializer = ProductSerializer(buyer_products, many=True)
-#     return Response(serializer.data)
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def place_order(request):
-#     request.session['cart'] = {}
-#     return Response({'message': 'Order placed successfully'})

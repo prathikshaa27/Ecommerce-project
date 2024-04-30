@@ -5,10 +5,12 @@ class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
         fields = ['name']
+        
 
 class ProductSerializer(serializers.ModelSerializer):
-    name = ProductCategorySerializer()  
+    name_id = serializers.PrimaryKeyRelatedField(queryset=ProductCategory.objects.all(), source='name')
+ 
 
     class Meta:
         model = Product
-        fields = ['id', 'user', 'product_name', 'image_url', 'amount', 'quantity', 'description', 'name']
+        fields = ['id', 'user', 'product_name', 'image_url', 'amount', 'quantity', 'description', 'name_id']

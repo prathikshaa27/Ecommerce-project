@@ -4,6 +4,8 @@ from .models import Product
 from .serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.db.models import Q
+from django.db.models.functions import Cast
 
 
 @api_view(['GET'])
@@ -40,6 +42,16 @@ def manage_cart(request, product_id):
         del cart[str(product_id)]
         request.session['cart'] = cart
         return Response({'message': 'Product removed from cart'}, status=status.HTTP_200_OK)
+@api_view(['GET'])
+def filter_products(request):
+    min_price = request.query_params.get('min_price')
+    max_price = request.query_params.get('max_price')
+    if min_price is not None and max_price is not None:
+        products = Product.objects.filter(amount__gte=min_price, amount__lte=max_price)
+    else:
+        products = Product.objects.all()
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
 # @api_view(['GET'])  
 # def view_products(request):

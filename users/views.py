@@ -32,7 +32,7 @@ from django.contrib.auth.models import User
 #         return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
-def buyer_signup(request):
+def customer_signup(request):
     if request.method == 'POST':
         serializer = BuyerSignupSerializer(data=request.data)
         if serializer.is_valid():
@@ -41,7 +41,7 @@ def buyer_signup(request):
         return Response(serializer.errors, status=400)
 
 @api_view(['POST'])
-def buyer_signin(request):
+def customer_signin(request):
     if request.method == 'POST':
         serializer = BuyerSigninSerializer(data=request.data)
         if serializer.is_valid():

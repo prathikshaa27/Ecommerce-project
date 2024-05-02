@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from .models import Order
 from .serializers import OrderSerializer
@@ -6,19 +6,18 @@ from rest_framework import status
 from products.models import Product
 from products.serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+@api_view(['GET', 'POST'])
+@login_required
+def cart_and_order(request):
+    if request.method == 'GET':
+        cart = request.session.get('cart', {})
+        product_ids = [int(product_id) for product_id in cart.keys()]
+        products = Product.objects.filter(pk__in=product_ids)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
 
-@api_view(['GET'])
-def view_cart(request):
- if request.method == 'GET':
-  cart=request.session.get('cart', {})
-  product_ids = [int(product_id) for product_id in cart.keys()]
-  products = Product.objects.filter(pk__in=product_ids)
-  serializer = ProductSerializer(products, many=True)
- return Response(serializer.data)
-
-@api_view(['POST'])
-def place_order(request):
-    if request.method == 'POST':
+    elif request.method == 'POST':
         data = request.data
         if isinstance(data, list):
             serializer = OrderSerializer(data=data, many=True)
@@ -26,13 +25,11 @@ def place_order(request):
             serializer = OrderSerializer(data=data)
 
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            request.session.pop('cart', None)  
+            serializer.save()
+            request.session.pop('cart', None)
             return Response({'message': 'Order placed successfully'}, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 # # Seller views
 # @api_view(['GET'])

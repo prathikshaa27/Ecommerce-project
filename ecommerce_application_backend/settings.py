@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     "users",
     "products",
     "orders",
-    'rest_framework'
+    'rest_framework',
+    'corsheaders'
 ]
 
 
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "ecommerce_application_backend.urls"
@@ -144,3 +146,17 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+CORS_ALLOW_ALL_ORIGINS = True  
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',  
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+SESSION_COOKIE_SECURE = True 
+SESSION_COOKIE_HTTPONLY = True  
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
+SESSION_COOKIE_AGE = 3600 

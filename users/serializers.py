@@ -27,3 +27,14 @@ class BuyerSignupSerializer(serializers.ModelSerializer):
 class BuyerSigninSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+from .models import Profile
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'profile']  
+
+  
+    profile = ProfileSerializer()  

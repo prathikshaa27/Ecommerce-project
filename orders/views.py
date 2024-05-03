@@ -7,17 +7,19 @@ from products.models import Product
 from products.serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
-@api_view(['GET', 'POST'])
+
+
+@api_view(["GET", "POST"])
 @login_required
 def cart_and_order(request):
-    if request.method == 'GET':
-        cart = request.session.get('cart', {})
+    if request.method == "GET":
+        cart = request.session.get("cart", {})
         product_ids = [int(product_id) for product_id in cart.keys()]
         products = Product.objects.filter(pk__in=product_ids)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
+    elif request.method == "POST":
         data = request.data
         if isinstance(data, list):
             serializer = OrderSerializer(data=data, many=True)
@@ -26,14 +28,17 @@ def cart_and_order(request):
 
         if serializer.is_valid():
             serializer.save()
-            request.session.pop('cart', None)
-            return Response({'message': 'Order placed successfully'}, status=status.HTTP_201_CREATED)
-        
+            request.session.pop("cart", None)
+            return Response(
+                {"message": "Order placed successfully"}, status=status.HTTP_201_CREATED
+            )
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # # Seller views
 # @api_view(['GET'])
-# @permission_classes([IsAdminUser])  
+# @permission_classes([IsAdminUser])
 # def seller_orders(request):
 #     seller_products = Product.objects.filter(user=request.user)
 #     orders = Order.objects.filter(product_name__in=seller_products)

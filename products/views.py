@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.db.models.functions import Cast
 from django.contrib.auth.decorators import login_required
 from .models import Product, ProductCategory
+from django.http import JsonResponse
 
 
 @api_view(["GET"])
@@ -81,6 +82,24 @@ def list_products_by_categories(request, category_id):
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(["GET"])
+@login_required
+def search_products(request):
+    search_query = request.query_params.get('q', '')
+    if search_query:
+        # Perform filtering based on the search query
+        products = Product.objects.filter(product_name__icontains=search_query)
+    else:
+        # Return all products if no search query is provided
+        products = Product.objects.all()
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
 
 # @api_view(['GET'])
 # def view_products(request):

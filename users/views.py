@@ -59,7 +59,7 @@ def customer_signin(request):
                 if next_url:
                     return HttpResponseRedirect(next_url)
                 else:
-                    return Response({"message": "Customer signed in successfully!"},status=status.HTTP200)
+                    return Response({"message": "Customer signed in successfully!"},status=status.HTTP_200_OK)
 
             return Response(
                 {"error": "Invalid credentials or user is not a customer"}, status=status.HTTP_400_BAD_REQUEST

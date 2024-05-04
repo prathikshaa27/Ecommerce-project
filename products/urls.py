@@ -4,6 +4,8 @@ from .views import (
     manage_cart,
     list_categories,
     list_products_by_categories,
+    search_products,
+    product_detail
 )
 
 urlpatterns = [
@@ -17,6 +19,8 @@ urlpatterns = [
     path(
         "api/categories/<int:category_id>/",
         list_products_by_categories,
-        name="category_list",
-    ),
+        name="category_list"),
+    path('api/search/', search_products, name='search_products'),
+    path('api/products/<int:product_id>/', product_detail, name='product-detail'),
+    
 ]

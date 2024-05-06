@@ -4,11 +4,11 @@ from .models import Product
 from .serializers import ProductSerializer, ProductCategorySerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from django.db.models import Q
-from django.db.models.functions import Cast
 from django.contrib.auth.decorators import login_required
 from .models import Product, ProductCategory
-from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_protect
+
+
 
 
 @api_view(["GET"])
@@ -26,8 +26,6 @@ def list_categories(request):
     serializer = ProductCategorySerializer(categories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-@api_view(["POST", "DELETE"])
 @login_required
 def manage_cart(request, product_id):
     if request.method == "POST":
@@ -66,7 +64,6 @@ def manage_cart(request, product_id):
             {"message": "Product removed from cart"}, status=status.HTTP_200_OK
         )
 
-
 @api_view(["GET"])
 @login_required
 def list_products_by_categories(request, category_id):
@@ -87,10 +84,8 @@ def list_products_by_categories(request, category_id):
 def search_products(request):
     search_query = request.query_params.get('q', '')
     if search_query:
-        # Perform filtering based on the search query
         products = Product.objects.filter(product_name__icontains=search_query)
     else:
-        # Return all products if no search query is provided
         products = Product.objects.all()
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)

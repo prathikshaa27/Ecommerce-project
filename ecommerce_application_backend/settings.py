@@ -53,7 +53,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
+     "corsheaders.middleware.CorsMiddleware",
+   
 ]
 
 ROOT_URLCONF = "ecommerce_application_backend.urls"
@@ -162,3 +163,11 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
 SESSION_COOKIE_AGE = 3600 
 
+# CSRF_COOKIE_SECURE = False
+# CSRF_COOKIE_HTTPONLY = False
+
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+CSRF_ALLOWED_ORIGINS = ["http://localhost:3000"]
+CORS_ORIGINS_WHITELIST = ["http://localhost:3000"]

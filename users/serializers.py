@@ -39,7 +39,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'profile']
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('profile', {})
+        profile_data = validated_data.pop('profile',{})
         profile_serializer = self.fields['profile']
         profile_instance = instance.profile
 

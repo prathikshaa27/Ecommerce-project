@@ -1,12 +1,16 @@
 from django.contrib.auth import authenticate, login
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import BuyerSignupSerializer, BuyerSigninSerializer, CustomUserSerializer
-from .models import CustomUser
+from .serializers import BuyerSignupSerializer, BuyerSigninSerializer, CustomUserSerializer, ProfileSerializer
+from .models import CustomUser, Profile
+from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
+
+CustomUser = get_user_model()
+
 # @api_view(['POST'])
 # def seller_signup(request):
 #     if request.method == 'POST':
@@ -66,7 +70,6 @@ def customer_signin(request):
             )
         return Response(serializer.errors, status=400)
 
-
 @api_view(["GET", "PUT"])
 @login_required
 def customer_details(request):
@@ -76,8 +79,10 @@ def customer_details(request):
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
-        serializer = CustomUserSerializer(user)
-        return Response(serializer.data)
+        profile_serializer = ProfileSerializer(user.profile)
+        user_data = CustomUserSerializer(user).data
+        user_data['profile'] = profile_serializer.data
+        return Response(user_data)
 
     elif request.method == "PUT":
         serializer = CustomUserSerializer(user, data=request.data, partial=True)

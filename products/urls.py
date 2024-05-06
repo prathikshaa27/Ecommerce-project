@@ -22,5 +22,6 @@ urlpatterns = [
         name="category_list"),
     path('api/search/', search_products, name='search_products'),
     path('api/products/<int:product_id>/', product_detail, name='product-detail'),
+   
     
 ]

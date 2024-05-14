@@ -166,8 +166,11 @@ SESSION_COOKIE_AGE = 3600
 # CSRF_COOKIE_SECURE = False
 # CSRF_COOKIE_HTTPONLY = False
 
+CSRF_COOKIE_NAME = 'csrftoken'
+
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 CSRF_ALLOWED_ORIGINS = ["http://localhost:3000"]
 CORS_ORIGINS_WHITELIST = ["http://localhost:3000"]
+

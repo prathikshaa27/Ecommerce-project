@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
 class CustomUser(AbstractUser):
     is_seller = models.BooleanField(default=False)
 
@@ -18,5 +17,4 @@ class Profile(models.Model):
     pincode = models.CharField(max_length=7, blank=False, null=False)
 
 
-# CustomUser.groups.field.remote_field.related_name = "custom_user_groups"
-# CustomUser.user_permissions.field.remote_field.related_name = "custom_user_permissions"
+

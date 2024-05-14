@@ -6,9 +6,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
 from .models import Product, ProductCategory
-from django.views.decorators.csrf import csrf_protect
-
-
 
 
 @api_view(["GET"])
@@ -26,11 +23,12 @@ def list_categories(request):
     serializer = ProductCategorySerializer(categories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST', 'DELETE'])
 @login_required
 def manage_cart(request, product_id):
     if request.method == "POST":
         try:
-            product = Product.objects.get(pk=product_id)
+            product = get_object_or_404(Product, pk=product_id)
         except Product.DoesNotExist:
             return Response(
                 {"error": "Product does not exist"}, status=status.HTTP_404_NOT_FOUND
@@ -40,17 +38,18 @@ def manage_cart(request, product_id):
             request.session[cart_key] = {}
 
         cart = request.session[cart_key]
+        quantity = int(request.data.get('quantity', 1))  
         cart[str(product_id)] = {
             "product_id": product_id,
             "product_name": product.product_name,
             "amount": str(product.amount),
+            "quantity": quantity,
         }
 
         request.session.modified = True
         return Response(
             {"message": "Product added to cart"}, status=status.HTTP_201_CREATED
         )
-
     elif request.method == "DELETE":
         cart = request.session.get("cart", {})
         if str(product_id) not in cart:
@@ -68,14 +67,7 @@ def manage_cart(request, product_id):
 @login_required
 def list_products_by_categories(request, category_id):
     category = get_object_or_404(ProductCategory, pk=category_id)
-    min_price = request.query_params.get("min_price")
-    max_price = request.query_params.get("max_price")
-
     products = Product.objects.filter(name=category)
-
-    if min_price is not None and max_price is not None:
-        products = products.filter(amount__gte=min_price, amount__lte=max_price)
-
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -91,41 +83,34 @@ def search_products(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(["GET"])
+@login_required
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     serializer = ProductSerializer(product)
     return Response(serializer.data)
 
-# @api_view(['GET'])
-# def view_products(request):
-#     products = Product.objects.all()
-#     serializer = ProductSerializer(products, many=True)
-#     return Response(serializer.data)
 
-# @api_view(['POST'])
-# def add_product(request):
-#     serializer = ProductSerializer(data= request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+def category_price_filter(request):
+    if request.method == 'GET':
+        category_name = request.query_params.get('category')
+        min_price = float(request.query_params.get('min_price', 0))
+        max_price = float(request.query_params.get('max_price', float('inf')))
+        
+        try:
+            category = ProductCategory.objects.get(name=category_name)
+            products = Product.objects.filter(name=category, amount__gte=min_price, amount__lte=max_price)
+            serializer = ProductSerializer(products, many=True)
+            
+            response_data = {
+                'products': serializer.data,
+                'category': category_name,
+                'min_price': min_price,
+                'max_price': max_price
+            }
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+        
+        except ProductCategory.DoesNotExist:
+            return Response({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-
-# @api_view(['GET','PUT','DELETE'])
-# def product_details(request,pk):
-#     try:
-#         product = Product.objects.get(pk=pk)
-#     except Product.DoesNotExist:
-#         return Response({'error':'Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
-#     if request.method == 'GET':
-#         serializer = ProductSerializer(product)
-#         return Response(serializer.data)
-#     elif request.method == 'PUT':
-#         serializer = ProductSerializer(product, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#     elif request.method == 'DELETE':
-#         product.delete()
-#         return Response(status = status.HTTP_204_NO_CONTENT)

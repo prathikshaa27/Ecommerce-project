@@ -5,7 +5,7 @@ from .models import CustomUser, Profile
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ["mobile", "address", "pincode"]
+        fields = ["mobile", "address", "pincode", "addresses"]
 
         def validate_pincode(self, value):
          expected_length = 5  
@@ -44,10 +44,6 @@ class BuyerSignupSerializer(serializers.ModelSerializer):
         return user  
         
 
-
-
-    
-
 class BuyerSigninSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -70,4 +66,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         profile_instance.save()
 
         return super().update(instance, validated_data)
+
+
 

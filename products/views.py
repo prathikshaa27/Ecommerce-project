@@ -90,13 +90,20 @@ def product_detail(request, product_id):
     return Response(serializer.data)
 
 
+
 @api_view(['GET'])
 def category_price_filter(request):
     if request.method == 'GET':
         category_name = request.query_params.get('category')
-        min_price = float(request.query_params.get('min_price', 0))
-        max_price = float(request.query_params.get('max_price', float('inf')))
-        
+        min_price = request.query_params.get('min_price', '0')
+        max_price = request.query_params.get('max_price', str(float('inf')))
+
+        try:
+            min_price = float(min_price)
+            max_price = float(max_price)
+        except ValueError:
+            return Response({'error': 'Invalid price values'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             category = ProductCategory.objects.get(name=category_name)
             products = Product.objects.filter(name=category, amount__gte=min_price, amount__lte=max_price)
@@ -113,4 +120,3 @@ def category_price_filter(request):
         
         except ProductCategory.DoesNotExist:
             return Response({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
-

@@ -130,6 +130,13 @@ REST_FRAMEWORK = {
 }
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'users.pagination.CustomPagination',
+    'PAGE_SIZE': 10,  
+}
+
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

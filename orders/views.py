@@ -1,19 +1,20 @@
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth import get_user_model
-from .models import Order,OrderItem
+from .models import Order, OrderItem
 from .serializers import OrderSerializer
 from users.serializers import ProfileSerializer
 from rest_framework import status
 from products.models import Product
-from users.models import CustomUser,Profile
+from users.models import CustomUser, Profile
 from django.core.exceptions import ObjectDoesNotExist
 from users.models import Profile
 from products.serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
-
+from .pagination import CustomPagination
 
 @api_view(['GET'])
 @login_required
@@ -35,8 +36,9 @@ def view_cart(request):
             "image_url": product.image_url 
         })
 
-    return Response({"cart_items": cart_items, "total_amount": total_amount}, status=status.HTTP_200_OK)
-
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(cart_items, request)
+    return paginator.get_paginated_response({"cart_items": result_page, "total_amount": total_amount})
 
 @api_view(['POST'])
 @login_required
@@ -60,18 +62,17 @@ def place_order(request):
         request.session['cart'] = {}
         serializer = OrderSerializer(order)
         
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @login_required
 def user_orders(request):
     user_id = request.user.id
     orders = Order.objects.filter(user_id=user_id)
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
-
-
-
-
+    
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(orders, request)
+    serializer = OrderSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)

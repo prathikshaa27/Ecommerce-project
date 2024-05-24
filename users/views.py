@@ -10,6 +10,7 @@ from django.urls import reverse
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
 
+
 CustomUser = get_user_model()
 
 

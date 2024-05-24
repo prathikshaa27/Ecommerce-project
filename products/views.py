@@ -1,27 +1,30 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .models import Product
+from rest_framework.pagination import PageNumberPagination
+from .models import Product, ProductCategory
 from .serializers import ProductSerializer, ProductCategorySerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib.auth.decorators import login_required
-from .models import Product, ProductCategory
-
+from .pagination import CustomPagination
 
 @api_view(["GET"])
 @login_required
 def list_products(request):
     products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(products, request)
+    serializer = ProductSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(["GET"])
 @login_required
 def list_categories(request):
     categories = ProductCategory.objects.all()
-    serializer = ProductCategorySerializer(categories, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(categories, request)
+    serializer = ProductCategorySerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(['POST', 'DELETE'])
 @login_required
@@ -68,8 +71,10 @@ def manage_cart(request, product_id):
 def list_products_by_categories(request, category_id):
     category = get_object_or_404(ProductCategory, pk=category_id)
     products = Product.objects.filter(name=category)
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(products, request)
+    serializer = ProductSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(["GET"])
 @login_required
@@ -79,8 +84,10 @@ def search_products(request):
         products = Product.objects.filter(product_name__icontains=search_query)
     else:
         products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    paginator = CustomPagination()
+    result_page = paginator.paginate_queryset(products, request)
+    serializer = ProductSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 @api_view(["GET"])
 @login_required
@@ -88,8 +95,6 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     serializer = ProductSerializer(product)
     return Response(serializer.data)
-
-
 
 @api_view(['GET'])
 def category_price_filter(request):
@@ -107,7 +112,9 @@ def category_price_filter(request):
         try:
             category = ProductCategory.objects.get(name=category_name)
             products = Product.objects.filter(name=category, amount__gte=min_price, amount__lte=max_price)
-            serializer = ProductSerializer(products, many=True)
+            paginator = CustomPagination()
+            result_page = paginator.paginate_queryset(products, request)
+            serializer = ProductSerializer(result_page, many=True)
             
             response_data = {
                 'products': serializer.data,
@@ -116,7 +123,7 @@ def category_price_filter(request):
                 'max_price': max_price
             }
             
-            return Response(response_data, status=status.HTTP_200_OK)
+            return paginator.get_paginated_response(response_data)
         
         except ProductCategory.DoesNotExist:
             return Response({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
